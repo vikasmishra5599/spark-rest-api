@@ -1,4 +1,4 @@
-package io.model;
+package io.bankbridge.model;
 
 public class BankModel {
 	

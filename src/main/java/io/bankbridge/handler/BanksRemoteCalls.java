@@ -1,4 +1,4 @@
-package io.handler;
+package io.bankbridge.handler;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import spark.Request;
