@@ -1,7 +1,6 @@
 package io.bankbridge.http;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.bankbridge.exception.CustomException;
 import io.bankbridge.model.BankModel;
 import io.github.resilience4j.circuitbreaker.CircuitBreaker;
 import io.github.resilience4j.circuitbreaker.CircuitBreakerRegistry;
@@ -14,7 +13,8 @@ import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 
-import static io.bankbridge.config.ApplicationModule.CIRCUIT_NAME;
+import static io.bankbridge.config.Constants.CIRCUIT_NAME;
+import static io.github.resilience4j.circuitbreaker.CircuitBreaker.decorateSupplier;
 
 public class BankWebClient {
     private static final Logger LOG = LoggerFactory.getLogger(BankWebClient.class);
@@ -30,23 +30,18 @@ public class BankWebClient {
         this.httpClient = httpClient;
     }
 
-   public BankModel getDetail(String url) {
-        LOG.info("request for getting bank detail for [{}]", url);
-        try {
-            BankModel bankModel = Try.ofSupplier(CircuitBreaker.decorateSupplier(circuitBreaker,
-                    () -> doGetRecord(url)))
-                    .get();
-            return bankModel;
-        } catch (Exception e) {
-            throw new CustomException("Error in fetching records");
-        }
+    public BankModel getDetail(String url) {
+        LOG.info("Request for endpoint was made for url : [{}]", url);
+
+        return Try.ofSupplier(decorateSupplier(circuitBreaker,
+                () -> execute(url)))
+                .get();
     }
 
-    private BankModel doGetRecord(String url) throws RuntimeException {
+    private BankModel execute(String url) {
         HttpGet httpGet = new HttpGet(url);
         try {
             CloseableHttpResponse response = httpClient.execute(httpGet);
-
             return objectMapper.readValue(response.getEntity().getContent(), BankModel.class);
         } catch (Exception e) {
             LOG.warn("An error occurred while contacting bank with url [{}]", url, e);

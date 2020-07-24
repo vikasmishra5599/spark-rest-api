@@ -1,6 +1,8 @@
 package io.bankbridge.handler;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.bankbridge.exception.FileIOFailureException;
+import io.bankbridge.exception.NoResultFoundException;
 import io.bankbridge.http.BankWebClient;
 import io.bankbridge.model.BankModel;
 import org.slf4j.Logger;
@@ -16,19 +18,22 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import static io.bankbridge.config.Constants.CONTENT_TYPE;
+import static io.bankbridge.config.Constants.V2_FILENAME;
+import static java.util.Objects.nonNull;
+import static spark.utils.CollectionUtils.isEmpty;
+import static spark.utils.StringUtils.isBlank;
+
 @Singleton
 public class V2RequestHandler implements Route {
     private static final Logger LOG = LoggerFactory.getLogger(V2RequestHandler.class);
-
-    public static final String V2_PATH = "/v2/banks/all";
-    public static final String V2_FILENAME = "banks-v2.json";
 
     private Map<String, String> bankLinks;
     private ObjectMapper objectMapper;
     private BankWebClient bankServiceClient;
 
     @Inject
-    public V2RequestHandler(BankWebClient bankServiceClient, ObjectMapper objectMapper) throws IOException {
+    public V2RequestHandler(BankWebClient bankServiceClient, ObjectMapper objectMapper) {
         this.objectMapper = objectMapper;
         this.bankLinks = loadLinks();
         this.bankServiceClient = bankServiceClient;
@@ -36,21 +41,34 @@ public class V2RequestHandler implements Route {
 
     @Override
     public List<BankModel> handle(Request request, Response response) {
-        LOG.info("Configuration details [{}]", bankLinks);
+        LOG.info("Received request for V2 endpoint");
 
         List<BankModel> models = new ArrayList();
 
         bankLinks.entrySet().forEach(bankEntrySet -> {
-                    BankModel detail = bankServiceClient.getDetail(bankEntrySet.getValue());
-                    models.add(detail);
+            BankModel detail = bankServiceClient.getDetail(bankEntrySet.getValue());
+
+            if (nonNull(detail)) {
+                if (isBlank(detail.name)) {
+                    detail.name = bankEntrySet.getKey();
                 }
-        );
+                models.add(detail);
+            }
+        });
+        if (isEmpty(models)) {
+            throw new NoResultFoundException("No record found!!!");
+        }
+        response.type(CONTENT_TYPE);
         return models;
     }
 
-    private Map<String, String> loadLinks() throws IOException {
-        return objectMapper.readValue(Thread.currentThread()
-                .getContextClassLoader()
-                .getResource(V2_FILENAME), Map.class);
+    private Map<String, String> loadLinks() {
+        try {
+            return objectMapper.readValue(Thread.currentThread()
+                    .getContextClassLoader()
+                    .getResource(V2_FILENAME), Map.class);
+        } catch (IOException e) {
+            throw new FileIOFailureException("An error occurred while reading v2 file.", e);
+        }
     }
 }

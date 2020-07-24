@@ -13,8 +13,9 @@ import org.apache.http.impl.client.HttpClients;
 
 import java.time.Duration;
 
+import static io.bankbridge.config.Constants.CIRCUIT_NAME;
+
 public class ApplicationModule extends AbstractModule {
-    public static final String CIRCUIT_NAME = "bank-v2";
 
     @Override
     protected void configure() {
@@ -26,7 +27,7 @@ public class ApplicationModule extends AbstractModule {
     @Singleton
     CircuitBreakerRegistry initializeCircuitBreakerRegistry() {
         CircuitBreakerRegistry registry = CircuitBreakerRegistry.of(CircuitBreakerConfig.custom()
-                .failureRateThreshold(1)
+                .failureRateThreshold(4)
                 .waitDurationInOpenState(Duration.ofMillis(120000))
                 .build());
         registry.circuitBreaker(CIRCUIT_NAME);
