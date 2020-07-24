@@ -2,6 +2,7 @@ package io.bankbridge.handler;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.bankbridge.http.BankWebClient;
+import io.bankbridge.model.BankModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spark.Request;
@@ -11,7 +12,10 @@ import spark.Route;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
+
 @Singleton
 public class V2RequestHandler implements Route {
     private static final Logger LOG = LoggerFactory.getLogger(V2RequestHandler.class);
@@ -21,21 +25,27 @@ public class V2RequestHandler implements Route {
 
     private Map<String, String> bankLinks;
     private ObjectMapper objectMapper;
-    private BankWebClient bankService;
+    private BankWebClient bankServiceClient;
 
     @Inject
-    public V2RequestHandler(BankWebClient bankService, ObjectMapper objectMapper) throws IOException {
+    public V2RequestHandler(BankWebClient bankServiceClient, ObjectMapper objectMapper) throws IOException {
         this.objectMapper = objectMapper;
         this.bankLinks = loadLinks();
-        this.bankService = bankService;
+        this.bankServiceClient = bankServiceClient;
     }
 
     @Override
-    public Map<String, String> handle(Request request, Response response) {
-        LOG.info("Configuration details", bankLinks);
+    public List<BankModel> handle(Request request, Response response) {
+        LOG.info("Configuration details [{}]", bankLinks);
 
-        bankService.getDetail("http://localhost:1234/rbb"); //Temporary
-        return bankLinks;
+        List<BankModel> models = new ArrayList();
+
+        bankLinks.entrySet().forEach(bankEntrySet -> {
+                    BankModel detail = bankServiceClient.getDetail(bankEntrySet.getValue());
+                    models.add(detail);
+                }
+        );
+        return models;
     }
 
     private Map<String, String> loadLinks() throws IOException {

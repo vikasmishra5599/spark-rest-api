@@ -5,7 +5,6 @@ import spark.ExceptionHandler;
 import spark.Request;
 import spark.Response;
 
-
 public class CustomErrorHandler implements ExceptionHandler<CustomException> {
 
     @Override

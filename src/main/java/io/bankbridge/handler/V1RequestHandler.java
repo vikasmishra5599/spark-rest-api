@@ -33,7 +33,7 @@ public class V1RequestHandler implements Route {
     }
 
     @Override
-    public  List<Map> handle(Request request, Response response) throws IOException {
+    public  List<Map> handle(Request request, Response response) {
         LOG.info("Received request for getting list of banks");
 
         List<Map> result = new ArrayList<>();

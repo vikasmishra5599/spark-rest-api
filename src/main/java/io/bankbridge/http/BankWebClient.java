@@ -50,14 +50,7 @@ public class BankWebClient {
             return objectMapper.readValue(response.getEntity().getContent(), BankModel.class);
         } catch (Exception e) {
             LOG.warn("An error occurred while contacting bank with url [{}]", url, e);
-        } finally {
-            try {
-                httpClient.close();
-            } catch (Exception e) {
-                LOG.error("An error occurred while closing connection with url [{}]", url, e);
-            }
         }
         return null;
     }
-
 }
