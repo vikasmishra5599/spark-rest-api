@@ -5,8 +5,12 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
 import io.bankbridge.handler.V1RequestHandler;
 import io.bankbridge.handler.V2RequestHandler;
+import org.ehcache.Cache;
 import org.ehcache.CacheManager;
+import org.ehcache.config.builders.CacheConfigurationBuilder;
+import org.ehcache.config.builders.ResourcePoolsBuilder;
 
+import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import static io.bankbridge.config.CacheConfig.createCacheManageInstance;
@@ -27,9 +31,19 @@ public class ApplicationModule extends AbstractModule {
 
     @Provides
     @Singleton
-    public CacheManager createCacheManager() throws Exception {
-        CacheManager cacheManager = createCacheManageInstance();
-        enrichCache(cacheManager);
-        return cacheManager;
+    public CacheManager createCacheManager() {
+        return createCacheManageInstance();
+    }
+
+    @Provides
+    @Singleton
+    @Inject
+    public Cache<String, String> createCacheManagers(CacheManager cacheManager, ObjectMapper objectMapper) throws Exception {
+        Cache cache = cacheManager.createCache("banks", CacheConfigurationBuilder
+                .newCacheConfigurationBuilder(String.class, String.class, ResourcePoolsBuilder.heap(10)));
+
+        enrichCache(cacheManager, objectMapper);
+
+        return cache;
     }
 }

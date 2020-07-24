@@ -3,6 +3,6 @@ import java.util.List;
 
 public class BankModelList {
 	
-	public List<BankModel> banks; 
+	public List<BankModel> banks;
 
 }
