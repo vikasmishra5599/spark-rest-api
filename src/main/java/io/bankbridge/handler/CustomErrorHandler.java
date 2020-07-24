@@ -7,7 +7,7 @@ import spark.ExceptionHandler;
 import spark.Request;
 import spark.Response;
 
-import static io.bankbridge.config.Constants.CONTENT_TYPE;
+import static io.bankbridge.util.Constants.CONTENT_TYPE;
 
 public class CustomErrorHandler implements ExceptionHandler<CustomException> {
     private static final Logger LOG = LoggerFactory.getLogger(CustomErrorHandler.class);

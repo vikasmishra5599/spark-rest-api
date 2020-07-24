@@ -1,4 +1,4 @@
-package io.bankbridge.config;
+package io.bankbridge.util;
 
 public class Constants {
     public static final String CONTENT_TYPE = "application/json";
@@ -7,4 +7,6 @@ public class Constants {
     public static final String V2_PATH = "/v2/banks/all";
     public static final String V2_FILENAME = "banks-v2.json";
     public static final String CIRCUIT_NAME = "bank-v2";
+    public static final String CACHE_V1 = "bank-v1";
+    public static final String CACHE_V2 = "bank-v2";
 }

@@ -13,7 +13,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 
-import static io.bankbridge.config.Constants.CIRCUIT_NAME;
+import static io.bankbridge.util.Constants.CIRCUIT_NAME;
 import static io.github.resilience4j.circuitbreaker.CircuitBreaker.decorateSupplier;
 
 public class BankWebClient {

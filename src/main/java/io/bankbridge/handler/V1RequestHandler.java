@@ -1,8 +1,8 @@
 package io.bankbridge.handler;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import io.bankbridge.exception.FileIOFailureException;
+import io.bankbridge.model.BankModel;
 import io.bankbridge.model.BankModelList;
+import org.ehcache.Cache;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spark.Request;
@@ -10,32 +10,33 @@ import spark.Response;
 import spark.Route;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 import javax.inject.Singleton;
-import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static io.bankbridge.config.Constants.CONTENT_TYPE;
-import static io.bankbridge.config.Constants.V1_FILENAME;
+import static io.bankbridge.util.Constants.CACHE_V1;
+import static io.bankbridge.util.Constants.CONTENT_TYPE;
 import static java.util.stream.Collectors.toList;
 
 @Singleton
 public class V1RequestHandler implements Route {
     private static final Logger LOG = LoggerFactory.getLogger(V1RequestHandler.class);
 
-    private ObjectMapper objectMapper;
     private BankModelList bankModel;
+    private Cache<String, BankModel> cache;
 
     @Inject
-    public V1RequestHandler(ObjectMapper objectMapper) {
-        this.objectMapper = objectMapper;
-        this.bankModel = loadBanks();
+    public V1RequestHandler(@Named(CACHE_V1) Cache<String, BankModel> cache) {
+        this.cache = cache;
+        this.bankModel = initLoad();
     }
 
     @Override
     public List<Map> handle(Request request, Response response) {
-        LOG.info("Received request for getting list of banks");
+        LOG.info("Received request for V1 endpoint");
         response.type(CONTENT_TYPE);
 
         return bankModel.banks.stream()
@@ -48,14 +49,13 @@ public class V1RequestHandler implements Route {
                 .collect(toList());
     }
 
-    private BankModelList loadBanks() {
-        try {
-            return objectMapper.readValue(
-                    Thread.currentThread()
-                            .getContextClassLoader()
-                            .getResource(V1_FILENAME), BankModelList.class);
-        } catch (IOException e) {
-            throw new FileIOFailureException("An error occurred while reading v1 file", e);
-        }
+    private BankModelList initLoad() {
+        List<BankModel> banks = new ArrayList<>();
+        cache.forEach(entry -> banks.add(entry.getValue()));
+
+        BankModelList bankModel = new BankModelList();
+        bankModel.banks = banks;
+
+        return bankModel;
     }
 }

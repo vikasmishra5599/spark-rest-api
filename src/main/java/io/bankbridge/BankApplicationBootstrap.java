@@ -11,8 +11,8 @@ import io.bankbridge.util.APITransformer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static io.bankbridge.config.Constants.V1_PATH;
-import static io.bankbridge.config.Constants.V2_PATH;
+import static io.bankbridge.util.Constants.V1_PATH;
+import static io.bankbridge.util.Constants.V2_PATH;
 import static spark.Spark.exception;
 import static spark.Spark.get;
 import static spark.Spark.port;
