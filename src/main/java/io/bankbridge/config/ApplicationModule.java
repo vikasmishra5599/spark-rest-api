@@ -3,20 +3,19 @@ package io.bankbridge.config;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
+import com.google.inject.Singleton;
 import io.bankbridge.handler.V1RequestHandler;
 import io.bankbridge.handler.V2RequestHandler;
-import org.ehcache.Cache;
-import org.ehcache.CacheManager;
-import org.ehcache.config.builders.CacheConfigurationBuilder;
-import org.ehcache.config.builders.ResourcePoolsBuilder;
+import io.github.resilience4j.circuitbreaker.CircuitBreakerConfig;
+import io.github.resilience4j.circuitbreaker.CircuitBreakerRegistry;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
-import static io.bankbridge.config.CacheConfig.createCacheManageInstance;
-import static io.bankbridge.config.CacheConfig.enrichCache;
+import java.time.Duration;
 
 public class ApplicationModule extends AbstractModule {
+    public static final String CIRCUIT_NAME = "bank-v2";
+
     @Override
     protected void configure() {
         bind(V1RequestHandler.class);
@@ -25,25 +24,26 @@ public class ApplicationModule extends AbstractModule {
 
     @Provides
     @Singleton
-    public ObjectMapper createObjectMapper() {
+    CircuitBreakerRegistry initializeCircuitBreakerRegistry() {
+        CircuitBreakerRegistry registry = CircuitBreakerRegistry.of(CircuitBreakerConfig.custom()
+                .failureRateThreshold(1)
+                .waitDurationInOpenState(Duration.ofMillis(120000))
+                .build());
+        registry.circuitBreaker(CIRCUIT_NAME);
+        return registry;
+    }
+
+    @Provides
+    @Singleton
+    CloseableHttpClient initializeHttpClient() {
+        return HttpClients.createDefault();
+    }
+
+    @Provides
+    @Singleton
+    public static ObjectMapper objectMapper() {
         return new ObjectMapper();
     }
 
-    @Provides
-    @Singleton
-    public CacheManager createCacheManager() {
-        return createCacheManageInstance();
-    }
 
-    @Provides
-    @Singleton
-    @Inject
-    public Cache<String, String> createCacheManagers(CacheManager cacheManager, ObjectMapper objectMapper) throws Exception {
-        Cache cache = cacheManager.createCache("banks", CacheConfigurationBuilder
-                .newCacheConfigurationBuilder(String.class, String.class, ResourcePoolsBuilder.heap(10)));
-
-        enrichCache(cacheManager, objectMapper);
-
-        return cache;
-    }
 }

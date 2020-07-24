@@ -1,16 +1,16 @@
-package io.bankbridge.model;
+package io.bankbridge.util;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import spark.ResponseTransformer;
 
 import javax.inject.Inject;
 
-public class ResponseMapper implements ResponseTransformer {
+public class APITransformer implements ResponseTransformer {
 
     private ObjectMapper objectMapper;
 
     @Inject
-    public ResponseMapper(ObjectMapper objectMapper) {
+    public APITransformer(ObjectMapper objectMapper) {
         this.objectMapper = objectMapper;
     }
 
