@@ -32,7 +32,6 @@ public class ApplicationModule extends AbstractModule {
         bind(V2RequestHandler.class);
     }
 
-
     @Provides
     @Singleton
     CloseableHttpClient initializeHttpClient() {
@@ -75,5 +74,4 @@ public class ApplicationModule extends AbstractModule {
         registry.circuitBreaker(CIRCUIT_NAME);
         return registry;
     }
-
 }
