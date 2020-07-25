@@ -9,7 +9,7 @@ public class BankApplication {
     private static final Logger LOG = LoggerFactory.getLogger(BankApplication.class);
 
     public static void main(String[] args) {
-        LOG.info("----- Bank application ----------");
+        LOG.info("<--------- Banks Bridge application ---------->");
         bootstrapServer();
     }
 }

@@ -7,7 +7,8 @@
     <groupId>com.app</groupId>
     <artifactId>spark-rest-api</artifactId>
     <version>1.0-SNAPSHOT</version>
-
+    <name>spark-rest-api</name>
+    <description>Rest application using java spark</description>
 
     <dependencies>
         <dependency>
@@ -36,11 +37,6 @@
             <version>1.7.21</version>
         </dependency>
         <dependency>
-            <groupId>org.ehcache.modules</groupId>
-            <artifactId>ehcache-impl</artifactId>
-            <version>3.4.0</version>
-        </dependency>
-        <dependency>
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpclient</artifactId>
             <version>4.5.12</version>
@@ -49,12 +45,6 @@
             <groupId>io.github.resilience4j</groupId>
             <artifactId>resilience4j-circuitbreaker</artifactId>
             <version>1.5.0</version>
-        </dependency>
-        <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
-            <version>1.18.10</version>
-            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>io.vavr</groupId>
@@ -74,10 +64,9 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.assertj</groupId>
-            <artifactId>assertj-core</artifactId>
-            <version>3.11.1</version>
-            <scope>test</scope>
+            <groupId>org.ehcache.modules</groupId>
+            <artifactId>ehcache-impl</artifactId>
+            <version>3.4.0</version>
         </dependency>
     </dependencies>
 
