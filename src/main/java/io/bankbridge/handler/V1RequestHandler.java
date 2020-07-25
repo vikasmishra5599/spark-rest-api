@@ -1,5 +1,6 @@
 package io.bankbridge.handler;
 
+import io.bankbridge.exception.NoResultFoundException;
 import io.bankbridge.model.BankModel;
 import io.bankbridge.model.BankModelList;
 import org.ehcache.Cache;
@@ -16,10 +17,13 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import static io.bankbridge.util.Constants.CACHE_V1;
 import static io.bankbridge.util.Constants.CONTENT_TYPE;
+import static java.lang.String.format;
 import static java.util.stream.Collectors.toList;
+import static spark.utils.StringUtils.isNotBlank;
 
 @Singleton
 public class V1RequestHandler implements Route {
@@ -35,10 +39,26 @@ public class V1RequestHandler implements Route {
     }
 
     @Override
-    public List<Map> handle(Request request, Response response) {
-        LOG.info("Received request for V1 endpoint");
+    public Object handle(Request request, Response response) {
+        String param = request.params("id");
+        LOG.info("Received request for V1 endpoint with param: [{}]", param);
         response.type(CONTENT_TYPE);
 
+        if (isNotBlank(param)) {
+            return getMaps(param)
+                    .orElseThrow(() -> new NoResultFoundException(format("No result found for [%s]", param)));
+        }
+        return getMaps();
+    }
+
+    private Optional<BankModel> getMaps(String param) {
+        return bankModel.banks.stream()
+                .filter(b -> param.equalsIgnoreCase(b.bic) ||
+                        param.equalsIgnoreCase(b.name))
+                .findFirst();
+    }
+
+    private List<Map> getMaps() {
         return bankModel.banks.stream()
                 .map(b -> {
                     Map map = new HashMap<>();

@@ -7,14 +7,17 @@ import spark.ExceptionHandler;
 import spark.Request;
 import spark.Response;
 
+import javax.inject.Singleton;
+
 import static io.bankbridge.util.Constants.CONTENT_TYPE;
 
+@Singleton
 public class CustomErrorHandler implements ExceptionHandler<CustomException> {
     private static final Logger LOG = LoggerFactory.getLogger(CustomErrorHandler.class);
 
     @Override
     public void handle(CustomException e, Request request, Response response) {
-        LOG.warn("Error found in request [{}]", e);
+        LOG.warn("CustomerErrorHandler was hit.", e);
 
         response.status(e.format().getStatus());
         response.type(CONTENT_TYPE);

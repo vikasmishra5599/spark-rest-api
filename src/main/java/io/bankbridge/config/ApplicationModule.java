@@ -4,6 +4,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
 import com.google.inject.Singleton;
+import io.bankbridge.handler.CustomErrorHandler;
+import io.bankbridge.handler.NotSupportedLinkHandler;
 import io.bankbridge.handler.V1RequestHandler;
 import io.bankbridge.handler.V2RequestHandler;
 import io.bankbridge.model.BankModel;
@@ -30,6 +32,8 @@ public class ApplicationModule extends AbstractModule {
     protected void configure() {
         bind(V1RequestHandler.class);
         bind(V2RequestHandler.class);
+        bind(NotSupportedLinkHandler.class);
+        bind(CustomErrorHandler.class);
     }
 
     @Provides
