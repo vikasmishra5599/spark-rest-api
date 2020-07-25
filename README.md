@@ -19,4 +19,9 @@ mvn exec:java
 
 * http://localhost:8080/v1/banks/all
 
+* http://localhost:8080/v1/banks/:id
+
 * http://localhost:8080/v2/banks/all
+
+* http://localhost:8080/v2/banks/:id
+
